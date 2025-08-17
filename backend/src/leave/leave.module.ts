@@ -9,5 +9,6 @@ import { Leave } from './entities/leave.entity';
   imports: [TypeOrmModule.forFeature([Leave])],
   controllers: [LeaveController],
   providers: [LeaveService],
+  exports: [LeaveService]
 })
 export class LeaveModule {}

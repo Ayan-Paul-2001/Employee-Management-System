@@ -1,5 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
+export enum LeaveType {
+  ANNUAL = 'Annual',
+  SICK = 'Sick',
+  MATERNITY = 'Maternity',
+  PATERNITY = 'Paternity',
+  UNPAID = 'Unpaid'
+}
+
 @Entity()
 export class Leave {
   @PrimaryGeneratedColumn()
@@ -11,8 +19,12 @@ export class Leave {
   @Column()
   name: string;
 
-  @Column()
-  leaveType: string;
+  @Column({
+    type: 'enum',
+    enum: LeaveType,
+    default: LeaveType.ANNUAL
+  })
+  leaveType: LeaveType;
 
   @Column()
   department: string;

@@ -1,98 +1,215 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Employee Management System (EMS)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A modular NestJS-based Employee Management System with authentication, role-based access, HR, admin, employee, leave, notice, attendance, and reporting features.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Table of Contents
+- [Features](#features)
+- [Setup](#setup)
+- [Authentication & Registration](#authentication--registration)
+- [API Documentation](#api-documentation)
+  - [Auth](#auth)
+  - [Admin](#admin)
+  - [HR](#hr)
+  - [Employee](#employee)
+  - [Leave](#leave)
+  - [Notice](#notice)
+  - [Attendance](#attendance)
+  - [Report](#report)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## Features
+- User registration and email verification
+- Role-based access: Admin, HR Manager, Department Manager, Employee
+- Employee onboarding and management
+- Leave requests and approvals
+- Notice board for announcements
+- Attendance tracking
+- Reporting (CSV/PDF export)
 
+---
+
+## Setup
+1. **Clone the repository**
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+3. **Configure environment variables**
+   - Create a `.env` file in the root directory with your DB and email credentials.
+4. **Run the application**
+   ```bash
+   npm run start:dev
+   ```
+   The server runs on `http://localhost:4000` by default.
+
+---
+
+## Authentication & Registration
+
+### Register (All Roles)
+- **POST** `/auth/register`
+- **Body:**
+  ```json
+  {
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "Password1",
+    "role": "admin" // or "hr_manager", "department_manager", "employee"
+  }
+  ```
+- **Response:** Verification code sent to email.
+
+### Verify Email
+- **POST** `/auth/verify`
+- **Body:**
+  ```json
+  {
+    "email": "john@example.com",
+    "code": "123456"
+  }
+  ```
+- **Response:** Account created and verified.
+
+### Login
+- **POST** `/auth/login`
+- **Body:**
+  ```json
+  {
+    "email": "john@example.com",
+    "password": "Password1"
+  }
+  ```
+- **Response:** JWT access token and user role.
+
+### Password Reset (by Email)
+- **POST** `/auth/requestreset` — Request reset code
+- **POST** `/auth/verifyresetcode` — Verify code
+- **POST** `/auth/resetpassword` — Set new password
+
+---
+
+## API Documentation
+
+### Auth
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST   | /auth/register | Register a new user (all roles) |
+| POST   | /auth/verify   | Verify email with code |
+| POST   | /auth/login    | Login and get JWT |
+| POST   | /auth/requestreset | Request password reset code by email |
+| POST   | /auth/verifyresetcode | Verify password reset code by email |
+| POST   | /auth/resetpassword | Set new password by email |
+| POST   | /auth/admin/:id/request-reset | Request reset for admin by ID |
+| POST   | /auth/admin/:id/verify-reset-code | Verify reset code for admin by ID |
+| POST   | /auth/admin/:id/reset-password | (Admin only) Reset password for admin by ID |
+
+---
+
+### Admin
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| (No public endpoints currently defined) |
+
+---
+
+### HR
+> All routes require JWT and HR_MANAGER role
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST   | /hr/employees | Onboard a new employee |
+| GET    | /hr/employees | List all employees |
+| PATCH  | /hr/employees/:id | Update employee info |
+| GET    | /hr/leave-requests | List all leave requests |
+| PATCH  | /hr/leave-requests/:id | Approve/reject leave |
+| POST   | /hr/reviews | Add performance review |
+| GET    | /hr/reviews/:employeeId | Get reviews for employee |
+| POST   | /hr/announcements | Post announcement |
+| GET    | /hr/announcements | List all announcements |
+
+---
+
+### Employee
+> All routes require JWT and ADMIN role
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST   | /employee/create | Create employee |
+| GET    | /employee/all | List all employees |
+| GET    | /employee/:id | Get employee by ID |
+| PATCH  | /employee/update/:id | Update employee |
+| DELETE | /employee/delete/:id | Delete employee |
+
+---
+
+### Leave
+> All routes require JWT
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | /leave/all | List all leave requests |
+| GET    | /leave/:id | Get leave request by ID |
+| PATCH  | /leave/status/:id | Update leave status (Pending/Approved/Rejected) |
+| DELETE | /leave/delete/:id | Delete leave request |
+
+---
+
+### Notice
+> All routes require JWT. Some require ADMIN role.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST   | /notice | (Admin) Create notice |
+| GET    | /notice | List all notices |
+| GET    | /notice/my | (Admin) List notices by admin |
+| PATCH  | /notice/:id | (Admin) Update notice |
+| DELETE | /notice/:id | (Admin) Delete notice |
+
+---
+
+### Attendance
+> All routes require JWT and ADMIN role
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | /attendance | List all attendance records |
+| GET    | /attendance/employee/:employeeId | Get attendance summary for employee |
+
+---
+
+### Report
+> All routes require JWT and ADMIN role
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | /reports/notices | Export notice reports (CSV/PDF/JSON) |
+
+---
+
+## Example Usage
+
+### Register as Admin
 ```bash
-$ npm install
+curl -X POST http://localhost:4000/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Admin","email":"admin@email.com","password":"Admin123","role":"admin"}'
 ```
 
-## Compile and run the project
-
+### Onboard Employee (HR)
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+curl -X POST http://localhost:4000/hr/employees \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Employee Name", ...}'
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## Notes
+- All protected routes require a valid JWT in the `Authorization` header.
+- Use the `/auth/login` endpoint to obtain a JWT after registration and verification.
+- Roles: `admin`, `hr_manager`, `department_manager`, `employee`
+- For more details, see the source code for each module.
