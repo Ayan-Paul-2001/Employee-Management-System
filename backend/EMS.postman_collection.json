@@ -1,0 +1,446 @@
+{
+  "info": {
+    "_postman_id": "ems-collection-001",
+    "name": "EMS API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for Employee Management System (EMS) API."
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": [ "{{baseUrl}}" ], "path": [ "auth", "register" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin\",\n  \"email\": \"admin@email.com\",\n  \"password\": \"Admin123\",\n  \"role\": \"admin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register (HR)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": [ "{{baseUrl}}" ], "path": [ "auth", "register" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"HR Manager\",\n  \"email\": \"hr@email.com\",\n  \"password\": \"HR12345\",\n  \"role\": \"hr_manager\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/auth/verify", "host": [ "{{baseUrl}}" ], "path": [ "auth", "verify" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@email.com\",\n  \"code\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": [ "{{baseUrl}}" ], "path": [ "auth", "login" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@email.com\",\n  \"password\": \"Admin123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Request Password Reset (Email)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/auth/requestreset", "host": [ "{{baseUrl}}" ], "path": [ "auth", "requestreset" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@email.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Verify Password Reset Code (Email)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/auth/verifyresetcode", "host": [ "{{baseUrl}}" ], "path": [ "auth", "verifyresetcode" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@email.com\",\n  \"code\": \"123456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reset Password (Email)",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/auth/resetpassword", "host": [ "{{baseUrl}}" ], "path": [ "auth", "resetpassword" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@email.com\",\n  \"newPassword\": \"NewPass123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "HR",
+      "item": [
+        {
+          "name": "Onboard Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/hr/employees", "host": [ "{{baseUrl}}" ], "path": [ "hr", "employees" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Employee Name\",\n  \"email\": \"employee@email.com\",\n  \"department\": \"IT\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Employees",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/hr/employees", "host": [ "{{baseUrl}}" ], "path": [ "hr", "employees" ] }
+          }
+        },
+        {
+          "name": "Update Employee",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/hr/employees/1", "host": [ "{{baseUrl}}" ], "path": [ "hr", "employees", "1" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"department\": \"HR\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Leave Requests",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/hr/leave-requests", "host": [ "{{baseUrl}}" ], "path": [ "hr", "leave-requests" ] }
+          }
+        },
+        {
+          "name": "Approve/Reject Leave",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/hr/leave-requests/1", "host": [ "{{baseUrl}}" ], "path": [ "hr", "leave-requests", "1" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Approved\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Performance Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/hr/reviews", "host": [ "{{baseUrl}}" ], "path": [ "hr", "reviews" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": 1,\n  \"review\": \"Excellent performance\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Report Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/reports/1", "host": [ "{{baseUrl}}" ], "path": [ "reports", "1" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"resolved\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Employee Reviews",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/hr/reviews/1", "host": [ "{{baseUrl}}" ], "path": [ "hr", "reviews", "1" ] }
+          }
+        },
+        {
+          "name": "Update Notice",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/notices/1", "host": [ "{{baseUrl}}" ], "path": [ "notices", "1" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Policy\",\n  \"content\": \"Revised policy details...\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Post Announcement",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/hr/announcements", "host": [ "{{baseUrl}}" ], "path": [ "hr", "announcements" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"New Policy\",\n  \"content\": \"Details about the new policy...\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Announcements",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/hr/announcements", "host": [ "{{baseUrl}}" ], "path": [ "hr", "announcements" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employee",
+      "item": [
+        {
+          "name": "Create Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/employee/create", "host": [ "{{baseUrl}}" ], "path": [ "employee", "create" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Employee Name\",\n  \"email\": \"employee@email.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Employees",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/employee/all", "host": [ "{{baseUrl}}" ], "path": [ "employee", "all" ] }
+          }
+        },
+        {
+          "name": "Get Employee by ID",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/employee/1", "host": [ "{{baseUrl}}" ], "path": [ "employee", "1" ] }
+          }
+        },
+        {
+          "name": "Update Employee",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/employee/update/1", "host": [ "{{baseUrl}}" ], "path": [ "employee", "update", "1" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Employee",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/employee/delete/1", "host": [ "{{baseUrl}}" ], "path": [ "employee", "delete", "1" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Leave",
+      "item": [
+        {
+          "name": "Get All Leave Requests",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/leave/all", "host": [ "{{baseUrl}}" ], "path": [ "leave", "all" ] }
+          }
+        },
+        {
+          "name": "Get Leave Request by ID",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/leave/1", "host": [ "{{baseUrl}}" ], "path": [ "leave", "1" ] }
+          }
+        },
+        {
+          "name": "Update Leave Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/leave/status/1", "host": [ "{{baseUrl}}" ], "path": [ "leave", "status", "1" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Approved\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Leave Request",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/leave/delete/1", "host": [ "{{baseUrl}}" ], "path": [ "leave", "delete", "1" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notice",
+      "item": [
+        {
+          "name": "Create Notice (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/notice", "host": [ "{{baseUrl}}" ], "path": [ "notice" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Notice Title\",\n  \"content\": \"Notice content...\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Notices",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/notice", "host": [ "{{baseUrl}}" ], "path": [ "notice" ] }
+          }
+        },
+        {
+          "name": "Get Notices by Admin",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/notice/my", "host": [ "{{baseUrl}}" ], "path": [ "notice", "my" ] }
+          }
+        },
+        {
+          "name": "Update Notice (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": { "raw": "{{baseUrl}}/notice/1", "host": [ "{{baseUrl}}" ], "path": [ "notice", "1" ] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Title\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Notice (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/notice/1", "host": [ "{{baseUrl}}" ], "path": [ "notice", "1" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "item": [
+        {
+          "name": "Get All Attendance (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/attendance", "host": [ "{{baseUrl}}" ], "path": [ "attendance" ] }
+          }
+        },
+        {
+          "name": "Get Attendance by Employee (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/attendance/employee/1", "host": [ "{{baseUrl}}" ], "path": [ "attendance", "employee", "1" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Report",
+      "item": [
+        {
+          "name": "Get Notice Reports (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/notices?exportFormat=csv",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "reports", "notices" ],
+              "query": [ { "key": "exportFormat", "value": "csv" } ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

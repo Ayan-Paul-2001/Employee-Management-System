@@ -30,7 +30,7 @@ import { Announcement } from './hr/entities/announcement.entity';
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: '168999',
+      password: 'apCSE',
       database: 'employeemanagementsystem',
       entities: [User,Admin, Employee, Leave,Attendance,Notice, HrEmployee, LeaveRequest, PerformanceReview, Announcement],
       synchronize: true,
