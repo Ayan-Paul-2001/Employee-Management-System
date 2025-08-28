@@ -9,6 +9,20 @@ import Link from 'next/link';
 import { authApi } from '@/lib/api/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { 
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage 
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/select';
+import { useToast } from '@/components/ui/use-toast';
 
 const FormSchema = z.object({
   name: z.string().min(2, {
@@ -26,16 +40,31 @@ const FormSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const { register, handleSubmit, formState: { errors }, control } = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema)
+  const form = useForm({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      role: 'EMPLOYEE',
+    },
   });
 
-  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    register
+  } = form;
+
+  const onSubmit = async (data) => {
     try {
       setIsLoading(true);
       
@@ -143,21 +172,20 @@ export default function RegisterPage() {
                 error={errors.confirmPassword?.message}
               />
             </div>
-            <FormItem>
-              <FormLabel>Role</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="ADMIN">Administrator</SelectItem>
-                  <SelectItem value="HR_MANAGER">HR Manager</SelectItem>
-                  <SelectItem value="EMPLOYEE">Employee</SelectItem>
-                </SelectContent>
-              </Select>
-            </FormItem>
+            <Controller
+              name="role"
+              control={control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Role</FormLabel>
+                  <select {...field} className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="EMPLOYEE">Employee</option>
+                    <option value="HR">HR Manager</option>
+                  </select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
           <div>

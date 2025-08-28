@@ -42,13 +42,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
     ? navigation.filter(item => item.roles.includes(user.role))
     : [];
 
-  const filteredNavItems = navItems.filter(item => {
-    if (user.role === 'ADMIN') return true;
-    if (user.role === 'HR_MANAGER') return item.label !== 'System Settings';
-    if (user.role === 'EMPLOYEE') return ['Attendance', 'Leave Requests'].includes(item.label);
-    return false;
-  });
-
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Mobile sidebar */}
