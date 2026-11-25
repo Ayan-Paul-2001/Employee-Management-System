@@ -10,15 +10,15 @@ import {
   Request,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { UsersService } from './users.service';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { RejectApplicantDto } from './dto/reject-applicant.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApprovedUserGuard } from '../common/guards/approved-user.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../common/enums/role.enum';
+import { UsersService } from './users.service.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { UpdateRoleDto } from './dto/update-role.dto.js';
+import { RejectApplicantDto } from './dto/reject-applicant.dto.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { ApprovedUserGuard } from '../common/guards/approved-user.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { Role } from '../common/enums/role.enum.js';
 
 @ApiTags('users')
 @ApiBearerAuth()

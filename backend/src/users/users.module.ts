@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './schemas/user.schema';
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
-import { NotificationsModule } from '../notifications/notifications.module';
-import { MailModule } from '../mail/mail.module';
+import { User, UserSchema } from './schemas/user.schema.js';
+import { UsersService } from './users.service.js';
+import { UsersController } from './users.controller.js';
+import { NotificationsModule } from '../notifications/notifications.module.js';
+import { MailModule } from '../mail/mail.module.js';
 
 @Module({
   imports: [

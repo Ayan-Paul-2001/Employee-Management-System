@@ -1,16 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { AppModule } from '../app.module';
-import { UsersService } from '../users/users.service';
-import { Attendance, AttendanceDocument } from '../attendance/schemas/attendance.schema';
-import { LeaveRequest, LeaveRequestDocument } from '../leave/schemas/leave-request.schema';
-import { Notice, NoticeDocument } from '../notices/schemas/notice.schema';
-import { Role } from '../common/enums/role.enum';
-import { AttendanceStatus } from '../common/enums/attendance-status.enum';
-import { LeaveStatus } from '../common/enums/leave-status.enum';
-import { LeaveType } from '../common/enums/leave-type.enum';
-import { NoticeCategory, NoticePriority } from '../common/enums/notice.enum';
+import { AppModule } from '../app.module.js';
+import { UsersService } from '../users/users.service.js';
+import { Attendance, AttendanceDocument } from '../attendance/schemas/attendance.schema.js';
+import { LeaveRequest, LeaveRequestDocument } from '../leave/schemas/leave-request.schema.js';
+import { Notice, NoticeDocument } from '../notices/schemas/notice.schema.js';
+import { Role } from '../common/enums/role.enum.js';
+import { AttendanceStatus } from '../common/enums/attendance-status.enum.js';
+import { LeaveStatus } from '../common/enums/leave-status.enum.js';
+import { LeaveType } from '../common/enums/leave-type.enum.js';
+import { NoticeCategory, NoticePriority } from '../common/enums/notice.enum.js';
 
 function formatDate(d: Date): string {
   const year = d.getFullYear();

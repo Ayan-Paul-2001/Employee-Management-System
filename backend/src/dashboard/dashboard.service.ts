@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { AttendanceService } from '../attendance/attendance.service';
-import { LeaveService } from '../leave/leave.service';
-import { NoticesService } from '../notices/notices.service';
-import { UsersService } from '../users/users.service';
-import { Role } from '../common/enums/role.enum';
+import { AttendanceService } from '../attendance/attendance.service.js';
+import { LeaveService } from '../leave/leave.service.js';
+import { NoticesService } from '../notices/notices.service.js';
+import { UsersService } from '../users/users.service.js';
+import { Role } from '../common/enums/role.enum.js';
 
 @Injectable()
 export class DashboardService {

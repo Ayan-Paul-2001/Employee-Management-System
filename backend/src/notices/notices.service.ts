@@ -5,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Notice, NoticeDocument } from './schemas/notice.schema';
-import { CreateNoticeDto, UpdateNoticeDto } from './dto/notice.dto';
-import { NoticeCategory, NoticePriority } from '../common/enums/notice.enum';
-import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationType } from '../notifications/schemas/notification.schema';
-import { Role } from '../common/enums/role.enum';
-import { CacheService } from '../common/cache.service';
+import { Notice, NoticeDocument } from './schemas/notice.schema.js';
+import { CreateNoticeDto, UpdateNoticeDto } from './dto/notice.dto.js';
+import { NoticeCategory, NoticePriority } from '../common/enums/notice.enum.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
+import { NotificationType } from '../notifications/schemas/notification.schema.js';
+import { Role } from '../common/enums/role.enum.js';
+import { CacheService } from '../common/cache.service.js';
 
 @Injectable()
 export class NoticesService {

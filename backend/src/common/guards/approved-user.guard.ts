@@ -4,8 +4,8 @@ import {
   ExecutionContext,
   ForbiddenException,
 } from '@nestjs/common';
-import { ApprovalStatus } from '../enums/approval-status.enum';
-import { Role } from '../enums/role.enum';
+import { ApprovalStatus } from '../enums/approval-status.enum.js';
+import { Role } from '../enums/role.enum.js';
 
 @Injectable()
 export class ApprovedUserGuard implements CanActivate {

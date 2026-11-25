@@ -8,19 +8,19 @@ import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
-import { UsersService } from '../users/users.service';
-import { MailService } from '../mail/mail.service';
-import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationType } from '../notifications/schemas/notification.schema';
-import { CreateUserDto } from '../users/dto/create-user.dto';
+import { UsersService } from '../users/users.service.js';
+import { MailService } from '../mail/mail.service.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
+import { NotificationType } from '../notifications/schemas/notification.schema.js';
+import { CreateUserDto } from '../users/dto/create-user.dto.js';
 import {
   LoginDto,
   ForgotPasswordDto,
   ResetPasswordDto,
   ProfileResetPasswordDto,
   ChangePasswordDto,
-} from './dto/auth.dto';
-import { Role } from '../common/enums/role.enum';
+} from './dto/auth.dto.js';
+import { Role } from '../common/enums/role.enum.js';
 
 @Injectable()
 export class AuthService {

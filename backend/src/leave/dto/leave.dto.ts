@@ -7,7 +7,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { LeaveType } from '../../common/enums/leave-type.enum';
+import { LeaveType } from '../../common/enums/leave-type.enum.js';
 
 export class CreateLeaveRequestDto {
   @ApiProperty({ enum: LeaveType, default: LeaveType.CASUAL })

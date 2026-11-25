@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
-import { RolesGuard } from './guards/roles.guard';
-import { ApprovedUserGuard } from './guards/approved-user.guard';
-import { CacheService } from './cache.service';
+import { RolesGuard } from './guards/roles.guard.js';
+import { ApprovedUserGuard } from './guards/approved-user.guard.js';
+import { CacheService } from './cache.service.js';
 
 @Global()
 @Module({

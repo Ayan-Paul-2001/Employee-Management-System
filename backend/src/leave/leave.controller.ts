@@ -11,14 +11,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { LeaveService } from './leave.service';
-import { CreateLeaveRequestDto, ReviewLeaveDto } from './dto/leave.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApprovedUserGuard } from '../common/guards/approved-user.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../common/enums/role.enum';
-import { LeaveStatus } from '../common/enums/leave-status.enum';
+import { LeaveService } from './leave.service.js';
+import { CreateLeaveRequestDto, ReviewLeaveDto } from './dto/leave.dto.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { ApprovedUserGuard } from '../common/guards/approved-user.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { Role } from '../common/enums/role.enum.js';
+import { LeaveStatus } from '../common/enums/leave-status.enum.js';
 
 @ApiTags('leave')
 @ApiBearerAuth()

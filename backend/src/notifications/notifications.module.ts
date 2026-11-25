@@ -3,16 +3,16 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   Notification,
   NotificationSchema,
-} from './schemas/notification.schema';
+} from './schemas/notification.schema.js';
 import {
   NotificationMailSettings,
   NotificationMailSettingsSchema,
-} from './schemas/notification-mail-settings.schema';
-import { User, UserSchema } from '../users/schemas/user.schema';
-import { NotificationsService } from './notifications.service';
-import { NotificationsController } from './notifications.controller';
-import { NotificationMailController } from './notification-mail.controller';
-import { MailModule } from '../mail/mail.module';
+} from './schemas/notification-mail-settings.schema.js';
+import { User, UserSchema } from '../users/schemas/user.schema.js';
+import { NotificationsService } from './notifications.service.js';
+import { NotificationsController } from './notifications.controller.js';
+import { NotificationMailController } from './notification-mail.controller.js';
+import { MailModule } from '../mail/mail.module.js';
 
 @Module({
   imports: [

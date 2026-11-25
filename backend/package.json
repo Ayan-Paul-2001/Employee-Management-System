@@ -4,6 +4,10 @@
   "description": "Next Hunt Management System — NestJS + MongoDB Atlas API",
   "author": "Next Hunt",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
@@ -11,7 +15,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/main.js",
     "seed": "tsx src/database/seed.ts"
   },
   "dependencies": {

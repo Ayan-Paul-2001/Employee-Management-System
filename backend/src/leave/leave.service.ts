@@ -9,16 +9,16 @@ import { Model, Types } from 'mongoose';
 import {
   LeaveRequest,
   LeaveRequestDocument,
-} from './schemas/leave-request.schema';
-import { User, UserDocument } from '../users/schemas/user.schema';
-import { CreateLeaveRequestDto, ReviewLeaveDto } from './dto/leave.dto';
-import { LeaveStatus } from '../common/enums/leave-status.enum';
-import { LeaveType } from '../common/enums/leave-type.enum';
-import { Role } from '../common/enums/role.enum';
-import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationType } from '../notifications/schemas/notification.schema';
-import { MailService } from '../mail/mail.service';
-import { CacheService } from '../common/cache.service';
+} from './schemas/leave-request.schema.js';
+import { User, UserDocument } from '../users/schemas/user.schema.js';
+import { CreateLeaveRequestDto, ReviewLeaveDto } from './dto/leave.dto.js';
+import { LeaveStatus } from '../common/enums/leave-status.enum.js';
+import { LeaveType } from '../common/enums/leave-type.enum.js';
+import { Role } from '../common/enums/role.enum.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
+import { NotificationType } from '../notifications/schemas/notification.schema.js';
+import { MailService } from '../mail/mail.service.js';
+import { CacheService } from '../common/cache.service.js';
 
 @Injectable()
 export class LeaveService {

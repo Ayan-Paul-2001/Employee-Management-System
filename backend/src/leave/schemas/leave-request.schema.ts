@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { LeaveStatus } from '../../common/enums/leave-status.enum';
-import { LeaveType } from '../../common/enums/leave-type.enum';
-import { User } from '../../users/schemas/user.schema';
+import { LeaveStatus } from '../../common/enums/leave-status.enum.js';
+import { LeaveType } from '../../common/enums/leave-type.enum.js';
+import { User } from '../../users/schemas/user.schema.js';
 
 export type LeaveRequestDocument = HydratedDocument<LeaveRequest>;
 

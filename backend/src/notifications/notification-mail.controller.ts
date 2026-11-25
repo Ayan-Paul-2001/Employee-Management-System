@@ -10,15 +10,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../common/enums/role.enum';
-import { NotificationsService } from './notifications.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { Role } from '../common/enums/role.enum.js';
+import { NotificationsService } from './notifications.service.js';
 import {
   AddMailRecipientDto,
   ToggleNotificationMailDto,
-} from './dto/notification-mail.dto';
+} from './dto/notification-mail.dto.js';
 
 @ApiTags('notification-mail')
 @ApiBearerAuth()

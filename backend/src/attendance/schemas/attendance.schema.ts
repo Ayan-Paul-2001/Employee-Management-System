@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { AttendanceStatus } from '../../common/enums/attendance-status.enum';
-import { User } from '../../users/schemas/user.schema';
+import { AttendanceStatus } from '../../common/enums/attendance-status.enum.js';
+import { User } from '../../users/schemas/user.schema.js';
 
 export type AttendanceDocument = HydratedDocument<Attendance>;
 

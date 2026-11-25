@@ -1,8 +1,8 @@
 import { Controller, Get, Query, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApprovedUserGuard } from '../common/guards/approved-user.guard';
-import { DashboardService } from './dashboard.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { ApprovedUserGuard } from '../common/guards/approved-user.guard.js';
+import { DashboardService } from './dashboard.service.js';
 
 @ApiTags('dashboard')
 @ApiBearerAuth()

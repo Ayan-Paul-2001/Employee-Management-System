@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
-import { User } from '../../users/schemas/user.schema';
+import { User } from '../../users/schemas/user.schema.js';
 
 export type NotificationMailSettingsDocument =
   HydratedDocument<NotificationMailSettings>;

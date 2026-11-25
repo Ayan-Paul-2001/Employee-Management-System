@@ -8,9 +8,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApprovedUserGuard } from '../common/guards/approved-user.guard';
-import { NotificationsService } from './notifications.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { ApprovedUserGuard } from '../common/guards/approved-user.guard.js';
+import { NotificationsService } from './notifications.service.js';
 
 @ApiTags('notifications')
 @Controller('notifications')

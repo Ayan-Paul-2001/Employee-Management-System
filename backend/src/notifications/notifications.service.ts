@@ -12,15 +12,15 @@ import {
   Notification,
   NotificationDocument,
   NotificationType,
-} from './schemas/notification.schema';
+} from './schemas/notification.schema.js';
 import {
   NotificationMailSettings,
   NotificationMailSettingsDocument,
-} from './schemas/notification-mail-settings.schema';
-import { User, UserDocument } from '../users/schemas/user.schema';
-import { Role } from '../common/enums/role.enum';
-import { CacheService } from '../common/cache.service';
-import { MailService } from '../mail/mail.service';
+} from './schemas/notification-mail-settings.schema.js';
+import { User, UserDocument } from '../users/schemas/user.schema.js';
+import { Role } from '../common/enums/role.enum.js';
+import { CacheService } from '../common/cache.service.js';
+import { MailService } from '../mail/mail.service.js';
 
 const SETTINGS_KEY = 'registration_mail';
 const MAIL_SETTINGS_CACHE_KEY = 'notification-mail:settings';

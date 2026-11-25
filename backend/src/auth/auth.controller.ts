@@ -11,16 +11,16 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
+import { AuthService } from './auth.service.js';
 import {
   LoginDto,
   ForgotPasswordDto,
   ResetPasswordDto,
   ProfileResetPasswordDto,
   ChangePasswordDto,
-} from './dto/auth.dto';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+} from './dto/auth.dto.js';
+import { CreateUserDto } from '../users/dto/create-user.dto.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 
 @ApiTags('auth')
 @Controller('auth')

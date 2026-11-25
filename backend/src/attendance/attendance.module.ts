@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Attendance, AttendanceSchema } from './schemas/attendance.schema';
-import { User, UserSchema } from '../users/schemas/user.schema';
-import { LeaveRequest, LeaveRequestSchema } from '../leave/schemas/leave-request.schema';
-import { AttendanceService } from './attendance.service';
-import { AttendanceController } from './attendance.controller';
+import { Attendance, AttendanceSchema } from './schemas/attendance.schema.js';
+import { User, UserSchema } from '../users/schemas/user.schema.js';
+import { LeaveRequest, LeaveRequestSchema } from '../leave/schemas/leave-request.schema.js';
+import { AttendanceService } from './attendance.service.js';
+import { AttendanceController } from './attendance.controller.js';
 
 @Module({
   imports: [

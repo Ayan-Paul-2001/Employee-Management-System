@@ -6,18 +6,18 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Attendance, AttendanceDocument } from './schemas/attendance.schema';
-import { User, UserDocument } from '../users/schemas/user.schema';
+import { Attendance, AttendanceDocument } from './schemas/attendance.schema.js';
+import { User, UserDocument } from '../users/schemas/user.schema.js';
 import {
   LeaveRequest,
   LeaveRequestDocument,
-} from '../leave/schemas/leave-request.schema';
-import { AttendanceStatus } from '../common/enums/attendance-status.enum';
-import { LeaveStatus } from '../common/enums/leave-status.enum';
-import { Role } from '../common/enums/role.enum';
-import { ApprovalStatus } from '../common/enums/approval-status.enum';
-import { CheckInDto, CheckOutDto, MarkAttendanceDto } from './dto/attendance.dto';
-import { CacheService } from '../common/cache.service';
+} from '../leave/schemas/leave-request.schema.js';
+import { AttendanceStatus } from '../common/enums/attendance-status.enum.js';
+import { LeaveStatus } from '../common/enums/leave-status.enum.js';
+import { Role } from '../common/enums/role.enum.js';
+import { ApprovalStatus } from '../common/enums/approval-status.enum.js';
+import { CheckInDto, CheckOutDto, MarkAttendanceDto } from './dto/attendance.dto.js';
+import { CacheService } from '../common/cache.service.js';
 
 export const ATTENDANCE_POLICY = {
   portalOpenMinutes: 8 * 60 + 30, // 8:30 AM (510)

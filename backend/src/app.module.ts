@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { AttendanceModule } from './attendance/attendance.module';
-import { LeaveModule } from './leave/leave.module';
-import { NoticesModule } from './notices/notices.module';
-import { NotificationsModule } from './notifications/notifications.module';
-import { MailModule } from './mail/mail.module';
-import { DashboardModule } from './dashboard/dashboard.module';
-import { CommonModule } from './common/common.module';
+import { AuthModule } from './auth/auth.module.js';
+import { UsersModule } from './users/users.module.js';
+import { AttendanceModule } from './attendance/attendance.module.js';
+import { LeaveModule } from './leave/leave.module.js';
+import { NoticesModule } from './notices/notices.module.js';
+import { NotificationsModule } from './notifications/notifications.module.js';
+import { MailModule } from './mail/mail.module.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
+import { CommonModule } from './common/common.module.js';
 
 @Module({
   imports: [

@@ -1,6 +1,6 @@
 import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { AttendanceStatus } from '../../common/enums/attendance-status.enum';
+import { AttendanceStatus } from '../../common/enums/attendance-status.enum.js';
 
 export class CheckInDto {
   @ApiPropertyOptional({ example: 'Working from HQ office' })

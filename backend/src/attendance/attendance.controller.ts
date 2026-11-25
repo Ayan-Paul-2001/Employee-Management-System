@@ -8,13 +8,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
-import { AttendanceService } from './attendance.service';
-import { CheckInDto, CheckOutDto, MarkAttendanceDto } from './dto/attendance.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApprovedUserGuard } from '../common/guards/approved-user.guard';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { Role } from '../common/enums/role.enum';
+import { AttendanceService } from './attendance.service.js';
+import { CheckInDto, CheckOutDto, MarkAttendanceDto } from './dto/attendance.dto.js';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
+import { ApprovedUserGuard } from '../common/guards/approved-user.guard.js';
+import { RolesGuard } from '../common/guards/roles.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { Role } from '../common/enums/role.enum.js';
 
 @ApiTags('attendance')
 @ApiBearerAuth()

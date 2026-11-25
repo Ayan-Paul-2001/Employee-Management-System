@@ -11,16 +11,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
-import { User, UserDocument } from './schemas/user.schema';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { Role } from '../common/enums/role.enum';
-import { ApprovalStatus } from '../common/enums/approval-status.enum';
-import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationType } from '../notifications/schemas/notification.schema';
-import { MailService } from '../mail/mail.service';
-import { CacheService } from '../common/cache.service';
+import { User, UserDocument } from './schemas/user.schema.js';
+import { CreateUserDto } from './dto/create-user.dto.js';
+import { UpdateProfileDto } from './dto/update-profile.dto.js';
+import { UpdateRoleDto } from './dto/update-role.dto.js';
+import { Role } from '../common/enums/role.enum.js';
+import { ApprovalStatus } from '../common/enums/approval-status.enum.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
+import { NotificationType } from '../notifications/schemas/notification.schema.js';
+import { MailService } from '../mail/mail.service.js';
+import { CacheService } from '../common/cache.service.js';
 
 @Injectable()
 export class UsersService implements OnModuleInit {

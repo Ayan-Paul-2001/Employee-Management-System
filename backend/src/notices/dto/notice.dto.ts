@@ -7,7 +7,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { NoticeCategory, NoticePriority } from '../../common/enums/notice.enum';
+import { NoticeCategory, NoticePriority } from '../../common/enums/notice.enum.js';
 
 export class CreateNoticeDto {
   @ApiProperty({ example: 'Q4 Company Townhall Schedule' })
