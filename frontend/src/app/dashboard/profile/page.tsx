@@ -1,287 +1,411 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import {
+  User as UserIcon,
+  Mail,
+  Phone,
+  MapPin,
+  Building2,
+  Briefcase,
+  ShieldCheck,
+  KeyRound,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  Save,
+} from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-import { useUser } from '@/hooks/useUser';
+import { api, getApiErrorMessage } from '@/lib/api';
+import { AvatarCircle, RoleBadge } from '@/components/Badges';
 
-export default function ProfilePage() {
-  const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
-  const { updateProfile, changePassword, loading, error } = useUser();
-  
-  const [profileData, setProfileData] = useState({
-    fullName: '',
-    email: '',
-  });
-  
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: '',
-  });
-  
-  const [activeTab, setActiveTab] = useState('profile');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  
+export default function ProfileSecurityPage() {
+  const { user, setUser } = useAuth();
+
+  const [fullName, setFullName] = useState('');
+  const [department, setDepartment] = useState('');
+  const [position, setPosition] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [address, setAddress] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  // Direct Change Password state (for HR, Admin, and Employee — no Nodemailer needed)
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [updatingPassword, setUpdatingPassword] = useState(false);
+
   useEffect(() => {
     if (user) {
-      setProfileData({
-        fullName: user.fullName || '',
-        email: user.email || '',
-      });
+      setFullName(user.fullName || '');
+      setDepartment(user.department || '');
+      setPosition(user.position || '');
+      setPhoneNumber(user.phoneNumber || '');
+      setAddress(user.address || '');
     }
   }, [user]);
-  
-  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProfileData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setPasswordData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  const handleProfileSubmit = async (e: React.FormEvent) => {
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSuccessMessage('');
-    
-    const result = await updateProfile(profileData);
-    if (result) {
-      setSuccessMessage('Profile updated successfully');
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSuccessMessage('');
-      }, 3000);
+    setSavingProfile(true);
+    try {
+      const res = await api.patch('/users/profile', {
+        fullName: fullName.trim(),
+        department: department.trim(),
+        position: position.trim(),
+        phoneNumber: phoneNumber.trim(),
+        address: address.trim(),
+      });
+      setUser(res.data);
+      toast.success('Profile updated.');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update profile'));
+    } finally {
+      setSavingProfile(false);
     }
   };
-  
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
+
+  const hasMinLength = newPassword.length >= 8;
+  const passwordsMatch =
+    newPassword.length > 0 && confirmPassword.length > 0 && newPassword === confirmPassword;
+  const differsFromCurrent =
+    currentPassword.length > 0 && newPassword.length > 0 && newPassword !== currentPassword;
+
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSuccessMessage('');
-    setPasswordError('');
-    
-    // Validate passwords match
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setPasswordError('New passwords do not match');
+    if (!currentPassword) {
+      toast.error('Please enter your current password.');
       return;
     }
-    
-    const success = await changePassword(
-      passwordData.currentPassword,
-      passwordData.newPassword
-    );
-    
-    if (success) {
-      setSuccessMessage('Password changed successfully');
-      setPasswordData({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: '',
+    if (!hasMinLength) {
+      toast.error('New password must be at least 8 characters long.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('New password and confirmation do not match.');
+      return;
+    }
+    if (newPassword === currentPassword) {
+      toast.error('New password must be different from your current password.');
+      return;
+    }
+
+    setUpdatingPassword(true);
+    try {
+      await api.post('/auth/profile/change-password', {
+        currentPassword,
+        newPassword,
       });
-      
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setSuccessMessage('');
-      }, 3000);
+      toast.success('Password updated successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      toast.error(getApiErrorMessage(err, 'Failed to update password'));
+    } finally {
+      setUpdatingPassword(false);
     }
   };
-  
-  // Show loading state while checking authentication
-  if (authLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
-  
-  // Redirect if not authenticated
-  if (!user && !authLoading) {
-    router.push('/login');
-    return null;
-  }
-  
+
+  if (!user) return null;
+
   return (
-    <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-      <div className="px-4 py-5 sm:px-6">
-        <h3 className="text-lg leading-6 font-medium text-gray-900">User Profile</h3>
-        <p className="mt-1 max-w-2xl text-sm text-gray-500">Personal details and account settings</p>
-      </div>
-      
-      {/* Tabs */}
-      <div className="border-b border-gray-200">
-        <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`${activeTab === 'profile' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-          >
-            Profile Information
-          </button>
-          <button
-            onClick={() => setActiveTab('password')}
-            className={`${activeTab === 'password' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-          >
-            Change Password
-          </button>
-        </nav>
-      </div>
-      
-      <div className="px-4 py-5 sm:p-6">
-        {/* Success message */}
-        {successMessage && (
-          <div className="mb-4 bg-green-50 border-l-4 border-green-500 p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-green-700">{successMessage}</p>
-              </div>
+    <div className="space-y-6">
+      {/* Identity Card */}
+      <div className="nh-card flex flex-col items-start justify-between gap-5 p-6 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-4">
+          <AvatarCircle name={user.fullName} role={user.role} size="lg" />
+          <div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2 className="font-heading text-xl font-bold text-[#111318]">
+                {user.fullName}
+              </h2>
+              <RoleBadge role={user.role} />
             </div>
+            <p className="mt-1 flex items-center gap-2 text-sm text-[#6B6E76]">
+              <Mail className="h-3.5 w-3.5 text-[#9A7432]" />
+              {user.email}
+            </p>
+            <p className="mt-0.5 font-mono text-xs text-[#8E919A]">
+              ID: {user.employeeCode} • Joined{' '}
+              {user.dateOfJoining
+                ? new Date(user.dateOfJoining).toLocaleDateString()
+                : 'Active'}
+            </p>
           </div>
-        )}
-        
-        {/* Error message */}
-        {error && (
-          <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            </div>
+        </div>
+
+        <div className="inline-flex items-center gap-2 rounded-xl border border-[#B6E2D1] bg-[#ECF8F3] px-3.5 py-2 text-xs font-semibold text-[#0D6A4E]">
+          <ShieldCheck className="h-4 w-4 text-[#0F766E]" />
+          Verified Account
+        </div>
+      </div>
+
+      {/* 2-Column Profile & Security */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="nh-card p-6 lg:col-span-7">
+          <div className="mb-5 border-b border-[#EFECE5] pb-4">
+            <h3 className="font-heading text-base font-bold text-[#111318]">
+              Personal Information
+            </h3>
+            <p className="mt-0.5 text-xs text-[#73767E]">
+              Keep your directory profile and contact details current.
+            </p>
           </div>
-        )}
-        
-        {/* Profile Information Form */}
-        {activeTab === 'profile' && (
-          <form onSubmit={handleProfileSubmit} className="space-y-6">
+
+          <form onSubmit={handleSaveProfile} className="space-y-4">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">Full Name</label>
-              <input
-                type="text"
-                name="fullName"
-                id="fullName"
-                value={profileData.fullName}
-                onChange={handleProfileChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                required
-              />
+              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[#5C5F66]">
+                Full Name
+              </label>
+              <div className="nh-field-box">
+                <UserIcon className="h-4 w-4 shrink-0 text-[#8B8982]" />
+                <input
+                  type="text"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="nh-field-input"
+                />
+              </div>
             </div>
-            
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                name="email"
-                id="email"
-                value={profileData.email}
-                onChange={handleProfileChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                required
-              />
-            </div>
-            
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
-              >
-                {loading ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-          </form>
-        )}
-        
-        {/* Change Password Form */}
-        {activeTab === 'password' && (
-          <form onSubmit={handlePasswordSubmit} className="space-y-6">
-            {/* Password error message */}
-            {passwordError && (
-              <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-red-700">{passwordError}</p>
-                  </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[#5C5F66]">
+                  Department
+                </label>
+                <div className="nh-field-box">
+                  <Building2 className="h-4 w-4 shrink-0 text-[#8B8982]" />
+                  <input
+                    type="text"
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                    className="nh-field-input"
+                  />
                 </div>
               </div>
-            )}
-            
-            <div>
-              <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700">Current Password</label>
-              <input
-                type="password"
-                name="currentPassword"
-                id="currentPassword"
-                value={passwordData.currentPassword}
-                onChange={handlePasswordChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                required
-              />
+              <div>
+                <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[#5C5F66]">
+                  Position / Title
+                </label>
+                <div className="nh-field-box">
+                  <Briefcase className="h-4 w-4 shrink-0 text-[#8B8982]" />
+                  <input
+                    type="text"
+                    value={position}
+                    onChange={(e) => setPosition(e.target.value)}
+                    className="nh-field-input"
+                  />
+                </div>
+              </div>
             </div>
-            
+
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">New Password</label>
-              <input
-                type="password"
-                name="newPassword"
-                id="newPassword"
-                value={passwordData.newPassword}
-                onChange={handlePasswordChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                required
-                minLength={8}
-              />
-              <p className="mt-1 text-xs text-gray-500">Password must be at least 8 characters long</p>
+              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[#5C5F66]">
+                Phone Number
+              </label>
+              <div className="nh-field-box">
+                <Phone className="h-4 w-4 shrink-0 text-[#8B8982]" />
+                <input
+                  type="text"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="+1 (555) 000-0000"
+                  className="nh-field-input"
+                />
+              </div>
             </div>
-            
+
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirm New Password</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                id="confirmPassword"
-                value={passwordData.confirmPassword}
-                onChange={handlePasswordChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
-                required
-                minLength={8}
-              />
+              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[#5C5F66]">
+                Address
+              </label>
+              <div className="nh-field-box">
+                <MapPin className="h-4 w-4 shrink-0 text-[#8B8982]" />
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Street address, City"
+                  className="nh-field-input"
+                />
+              </div>
             </div>
-            
-            <div>
+
+            <div className="pt-2">
               <button
                 type="submit"
-                disabled={loading}
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                disabled={savingProfile}
+                className="nh-btn-primary px-5 py-2.5 text-xs"
               >
-                {loading ? 'Changing Password...' : 'Change Password'}
+                <Save className="h-4 w-4 text-[#EAD3A1]" />
+                {savingProfile ? 'Saving Changes...' : 'Save Profile'}
               </button>
             </div>
           </form>
-        )}
+        </div>
+
+        {/* Direct Change Password Card (Works for HR, Admin & Employee) */}
+        <div className="nh-card p-6 lg:col-span-5">
+          <div className="mb-5 border-b border-[#EFECE5] pb-4">
+            <div className="flex items-center gap-2">
+              <KeyRound className="h-4 w-4 text-[#9A7432]" />
+              <h3 className="font-heading text-base font-bold text-[#111318]">
+                Change Password
+              </h3>
+            </div>
+            <p className="mt-1 text-xs text-[#73767E]">
+              Update your account password directly by verifying your current
+              password.
+            </p>
+          </div>
+
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            <div>
+              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[#5C5F66]">
+                Current Password
+              </label>
+              <div className="nh-field-box">
+                <Lock className="h-4 w-4 shrink-0 text-[#8B8982]" />
+                <input
+                  type={showCurrent ? 'text' : 'password'}
+                  required
+                  autoComplete="current-password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Enter current password"
+                  className="nh-field-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrent((s) => !s)}
+                  className="shrink-0 text-[#8B8982] transition hover:text-[#111318]"
+                  aria-label="Toggle current password visibility"
+                >
+                  {showCurrent ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[#5C5F66]">
+                New Password
+              </label>
+              <div className="nh-field-box">
+                <KeyRound className="h-4 w-4 shrink-0 text-[#8B8982]" />
+                <input
+                  type={showNew ? 'text' : 'password'}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Minimum 8 characters"
+                  className="nh-field-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNew((s) => !s)}
+                  className="shrink-0 text-[#8B8982] transition hover:text-[#111318]"
+                  aria-label="Toggle new password visibility"
+                >
+                  {showNew ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[#5C5F66]">
+                Confirm New Password
+              </label>
+              <div className="nh-field-box">
+                <ShieldCheck className="h-4 w-4 shrink-0 text-[#8B8982]" />
+                <input
+                  type={showConfirm ? 'text' : 'password'}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter new password"
+                  className="nh-field-input"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm((s) => !s)}
+                  className="shrink-0 text-[#8B8982] transition hover:text-[#111318]"
+                  aria-label="Toggle confirm password visibility"
+                >
+                  {showConfirm ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Live Password Checklist */}
+            <div className="rounded-xl border border-[#EAE7DF] bg-[#FAF9F5] px-4 py-3 text-xs">
+              <div className="space-y-1.5">
+                <div
+                  className={`flex items-center gap-2 ${
+                    hasMinLength ? 'font-semibold text-[#0D6A4E]' : 'text-[#73767E]'
+                  }`}
+                >
+                  <CheckCircle2
+                    className={`h-3.5 w-3.5 shrink-0 ${
+                      hasMinLength ? 'text-[#0F766E]' : 'text-[#C7C2B5]'
+                    }`}
+                  />
+                  <span>At least 8 characters long</span>
+                </div>
+                <div
+                  className={`flex items-center gap-2 ${
+                    passwordsMatch
+                      ? 'font-semibold text-[#0D6A4E]'
+                      : 'text-[#73767E]'
+                  }`}
+                >
+                  <CheckCircle2
+                    className={`h-3.5 w-3.5 shrink-0 ${
+                      passwordsMatch ? 'text-[#0F766E]' : 'text-[#C7C2B5]'
+                    }`}
+                  />
+                  <span>New password and confirmation match</span>
+                </div>
+                {currentPassword.length > 0 && newPassword.length > 0 && !differsFromCurrent && (
+                  <p className="pt-0.5 text-[11px] font-medium text-[#BE123C]">
+                    New password must differ from your current password.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={updatingPassword}
+              className="nh-btn-primary w-full py-3 text-xs"
+            >
+              <KeyRound className="h-4 w-4 text-[#EAD3A1]" />
+              {updatingPassword ? 'Updating Password...' : 'Update Password'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

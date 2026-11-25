@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Builds
+backend/dist/
+frontend/.next/
+frontend/out/
+build/
+*.tsbuildinfo
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Logs & OS clutter
+*.log
+backend_log*.txt
+frontend_log*.txt
+npm-debug.log*
+.DS_Store
+Thumbs.db
+coverage/

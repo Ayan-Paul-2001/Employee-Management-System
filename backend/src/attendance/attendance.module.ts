@@ -1,16 +1,18 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Attendance, AttendanceSchema } from './schemas/attendance.schema';
+import { User, UserSchema } from '../users/schemas/user.schema';
+import { LeaveRequest, LeaveRequestSchema } from '../leave/schemas/leave-request.schema';
 import { AttendanceService } from './attendance.service';
 import { AttendanceController } from './attendance.controller';
-import { Attendance } from './entities/attendance.entity';
-import { EmployeesModule } from '../employees/employees.module';
-import { PusherModule } from '../common/services/pusher.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Attendance]),
-    EmployeesModule,
-    PusherModule,
+    MongooseModule.forFeature([
+      { name: Attendance.name, schema: AttendanceSchema },
+      { name: User.name, schema: UserSchema },
+      { name: LeaveRequest.name, schema: LeaveRequestSchema },
+    ]),
   ],
   controllers: [AttendanceController],
   providers: [AttendanceService],

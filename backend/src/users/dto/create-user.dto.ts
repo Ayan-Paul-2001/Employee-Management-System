@@ -1,25 +1,39 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { Role } from '../../common/enums/role.enum';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateUserDto {
-  @ApiProperty({ example: 'John Doe' })
+  @ApiProperty({ example: 'Sarah Jenkins' })
   @IsNotEmpty()
   @IsString()
+  @MaxLength(120)
   fullName: string;
 
-  @ApiProperty({ example: 'john@example.com' })
+  @ApiProperty({ example: 'sarah.jenkins@nexthunt.com' })
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'Password123!' })
+  @ApiProperty({ example: 'SecurePass@123' })
   @IsNotEmpty()
   @IsString()
-  @MinLength(8)
+  @MinLength(8, { message: 'Password must be at least 8 characters long' })
   password: string;
 
-  @ApiProperty({ enum: Role, example: Role.EMPLOYEE })
-  @IsEnum(Role)
-  role: Role;
+  @ApiPropertyOptional({ example: 'Engineering' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  department?: string;
+
+  @ApiPropertyOptional({ example: 'Software Engineer' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  position?: string;
+
+  @ApiPropertyOptional({ example: '+1 555-0199' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  phoneNumber?: string;
 }

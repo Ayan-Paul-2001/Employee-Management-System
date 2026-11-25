@@ -1,70 +1,107 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
+import { RejectApplicantDto } from './dto/reject-applicant.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApprovedUserGuard } from '../common/guards/approved-user.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @ApiTags('users')
+@ApiBearerAuth()
 @Controller('users')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, ApprovedUserGuard, RolesGuard)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Get all users (Admin/HR only)' })
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Get all approved team members (HR & Admin)' })
   findAll() {
     return this.usersService.findAll();
   }
 
+  @Get('stats')
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Get headcount & applicant summary (HR & Admin)' })
+  getStats() {
+    return this.usersService.getStats();
+  }
+
+  @Get('applicants')
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Get pending & rejected employment applicants (HR & Admin)' })
+  findApplicants(@Query('status') status?: string) {
+    return this.usersService.findApplicants(status || 'all');
+  }
+
+  @Patch('profile')
+  @ApiOperation({ summary: 'Update authenticated user profile' })
+  updateOwnProfile(@Request() req, @Body() dto: UpdateProfileDto) {
+    return this.usersService.updateProfile(req.user.id, dto);
+  }
+
+  @Patch(':id/approve')
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Approve a pending employment applicant (HR & Admin)' })
+  approveApplicant(@Param('id') id: string, @Request() req) {
+    return this.usersService.approveApplicant(id, req.user);
+  }
+
+  @Patch(':id/reject')
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Reject a pending employment applicant (HR & Admin)' })
+  rejectApplicant(
+    @Param('id') id: string,
+    @Body() dto: RejectApplicantDto,
+    @Request() req,
+  ) {
+    return this.usersService.rejectApplicant(id, req.user, dto?.reason);
+  }
+
   @Get(':id')
-  @ApiOperation({ summary: 'Get user by ID' })
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update user' })
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
-  }
-
-  @Patch('profile/update')
-  @ApiOperation({ summary: 'Update current user profile' })
-  @ApiResponse({ status: 200, description: 'Profile updated successfully' })
-  updateProfile(@Request() req, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(req.user.id, updateUserDto);
-  }
-
-  @Patch('profile/change-password')
-  @ApiOperation({ summary: 'Change current user password' })
-  @ApiResponse({ status: 200, description: 'Password changed successfully' })
-  @ApiResponse({ status: 401, description: 'Current password is incorrect' })
-  changePassword(@Request() req, @Body() changePasswordDto: ChangePasswordDto) {
-    return this.usersService.changePassword(
-      req.user.id,
-      changePasswordDto.currentPassword,
-      changePasswordDto.newPassword
-    );
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Get user by ID (HR & Admin)' })
+  async findOne(@Param('id') id: string) {
+    const user = await this.usersService.findOne(id);
+    return user.toJSON();
   }
 
   @Patch(':id/role')
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Update user role (Admin/HR only)' })
-  updateRole(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.usersService.updateRole(+id, updateRoleDto);
+  @Roles(Role.HR) // Strictly HR ONLY — Admin cannot upgrade/change roles!
+  @ApiOperation({ summary: 'Upgrade/change user role (HR Super Admin ONLY)' })
+  updateRole(
+    @Param('id') id: string,
+    @Body() dto: UpdateRoleDto,
+    @Request() req,
+  ) {
+    return this.usersService.updateRole(id, dto, req.user.id);
+  }
+
+  @Patch(':id')
+  @Roles(Role.HR)
+  @ApiOperation({ summary: 'Update member details (HR ONLY)' })
+  updateMember(@Param('id') id: string, @Body() dto: UpdateProfileDto) {
+    return this.usersService.updateProfile(id, dto);
   }
 
   @Delete(':id')
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Delete user (Admin/HR only)' })
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Roles(Role.HR)
+  @ApiOperation({ summary: 'Remove user account (HR ONLY)' })
+  remove(@Param('id') id: string, @Request() req) {
+    return this.usersService.remove(id, req.user.id);
   }
 }

@@ -1,22 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
-  // Enable CORS
+
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: [frontendUrl, 'http://localhost:3000', 'http://127.0.0.1:3000'],
     credentials: true,
   });
-  
-  // Use cookie parser
+
   app.use(cookieParser());
-  
-  // Global validation pipe
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -24,21 +22,22 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  
-  // Swagger documentation setup
+
   const config = new DocumentBuilder()
-    .setTitle('Employee Management System API')
-    .setDescription('API documentation for EMS')
-    .setVersion('1.0')
+    .setTitle('Next Hunt Management System API')
+    .setDescription(
+      'REST API for Next Hunt Management System — Role-based Workforce, Attendance Analytics, Leave & Notice Platform powered by NestJS & MongoDB Atlas',
+    )
+    .setVersion('2.0')
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
-  
-  // Start the server
-  const port = process.env.PORT || 4000;
+
+  const port = Number(process.env.PORT || 4000);
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
+  console.log(`Next Hunt Management System API running on http://localhost:${port}`);
+  console.log(`Swagger Docs available at http://localhost:${port}/api/docs`);
 }
 
 bootstrap();

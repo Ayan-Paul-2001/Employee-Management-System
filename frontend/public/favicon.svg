@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="nh-lux-bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#090B10"/>
+      <stop offset="55%" stop-color="#141926"/>
+      <stop offset="100%" stop-color="#1E2436"/>
+    </linearGradient>
+    <linearGradient id="nh-gold" x1="12" y1="12" x2="54" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F2D69B"/>
+      <stop offset="50%" stop-color="#D4A959"/>
+      <stop offset="100%" stop-color="#A67C37"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#nh-lux-bg)"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="14.5" stroke="url(#nh-gold)" stroke-opacity="0.55" stroke-width="1.5"/>
+  <path d="M15 46V18H21.2L34.4 36.2V18H40.4V46H34.3L21 27.6V46H15Z" fill="#FAF8F5"/>
+  <path d="M43.8 18H49.8V46H43.8V34.8H39V29.4H43.8V18Z" fill="url(#nh-gold)"/>
+</svg>

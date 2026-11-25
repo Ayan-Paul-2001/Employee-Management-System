@@ -1,23 +1,38 @@
-import Link from 'next/link';
+'use client';
 
-export default function Home() {
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-context';
+import { BrandLogo } from '@/components/BrandLogo';
+
+export default function HomePage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      if (!user) {
+        router.replace('/login');
+      } else if (
+        user.role !== 'hr' &&
+        (user.approvalStatus === 'pending' ||
+          user.approvalStatus === 'rejected' ||
+          user.isApproved === false)
+      ) {
+        router.replace('/pending-approval');
+      } else {
+        router.replace('/dashboard');
+      }
+    }
+  }, [user, loading, router]);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-center font-mono text-sm lg:flex">
-        <div className="flex flex-col items-center justify-center">
-          <h1 className="text-4xl font-bold mb-6 text-center">Employee Management System</h1>
-          <p className="text-xl mb-8 text-center">A comprehensive system for managing employees, attendance, leave requests, and notices</p>
-          
-          <div className="flex gap-4">
-            <Link href="/login" className="btn btn-primary">
-              Login
-            </Link>
-            <Link href="/register" className="btn btn-secondary">
-              Register
-            </Link>
-          </div>
-        </div>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#090B10] text-[#FAF8F5]">
+      <BrandLogo variant="dark" />
+      <div className="mt-6 flex items-center gap-2.5 text-xs font-medium tracking-wide text-[#9A9DA6]">
+        <span className="h-2 w-2 animate-ping rounded-full bg-[#C9A25B]" />
+        <span>Entering executive workspace...</span>
       </div>
-    </main>
+    </div>
   );
 }

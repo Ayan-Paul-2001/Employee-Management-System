@@ -1,97 +1,78 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { LeaveService } from './leave.service';
-import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
-import { UpdateLeaveRequestDto } from './dto/update-leave-request.dto';
+import { CreateLeaveRequestDto, ReviewLeaveDto } from './dto/leave.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApprovedUserGuard } from '../common/guards/approved-user.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 import { LeaveStatus } from '../common/enums/leave-status.enum';
 
 @ApiTags('leave')
+@ApiBearerAuth()
 @Controller('leave')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ApprovedUserGuard, RolesGuard)
 export class LeaveController {
   constructor(private readonly leaveService: LeaveService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create leave request' })
-  @ApiResponse({ status: 201, description: 'Leave request created successfully' })
-  create(@Body() createLeaveRequestDto: CreateLeaveRequestDto) {
-    return this.leaveService.create(createLeaveRequestDto);
+  @Roles(Role.EMPLOYEE, Role.ADMIN)
+  @ApiOperation({ summary: 'Apply for leave (Employee & Admin only — HR does not apply)' })
+  create(@Request() req, @Body() dto: CreateLeaveRequestDto) {
+    return this.leaveService.create(req.user.id, dto);
+  }
+
+  @Get('me')
+  @Roles(Role.EMPLOYEE, Role.ADMIN)
+  @ApiOperation({ summary: 'Get authenticated Employee/Admin leave applications' })
+  findMine(@Request() req) {
+    return this.leaveService.findMine(req.user.id);
   }
 
   @Get()
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Get all leave requests (Admin/HR only)' })
-  findAll() {
-    return this.leaveService.findAll();
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Get all leave applications (HR & Admin)' })
+  findAll(@Query('status') status?: string) {
+    return this.leaveService.findAll(status);
   }
 
-  @Get('employee/:employeeId')
-  @ApiOperation({ summary: 'Get leave requests by employee ID' })
-  findByEmployeeId(@Param('employeeId') employeeId: string) {
-    return this.leaveService.findByEmployeeId(employeeId);
-  }
-
-  @Get('pending')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Get pending leave requests (Admin/HR only)' })
-  findPendingRequests() {
-    return this.leaveService.findPendingRequests();
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Get leave request by ID' })
-  findOne(@Param('id') id: string) {
-    return this.leaveService.findOne(+id);
-  }
-
-  @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Update leave request status (Admin/HR only)' })
-  update(
-    @Param('id') id: string,
-    @Body() updateLeaveRequestDto: UpdateLeaveRequestDto,
-    @Request() req,
-  ) {
-    return this.leaveService.update(+id, updateLeaveRequestDto, req.user.id);
-  }
-  
   @Patch(':id/approve')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Approve leave request (Admin/HR only)' })
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Approve leave application (HR & Admin)' })
   approve(
     @Param('id') id: string,
+    @Body() dto: ReviewLeaveDto,
     @Request() req,
   ) {
-    const updateDto = { status: LeaveStatus.APPROVED };
-    return this.leaveService.update(+id, updateDto, req.user.id);
+    return this.leaveService.review(id, LeaveStatus.APPROVED, req.user, dto);
   }
-  
+
   @Patch(':id/reject')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Reject leave request (Admin/HR only)' })
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Reject leave application (HR & Admin)' })
   reject(
     @Param('id') id: string,
-    @Body() body: { reason?: string },
+    @Body() dto: ReviewLeaveDto,
     @Request() req,
   ) {
-    const updateDto = { status: LeaveStatus.REJECTED, rejectionReason: body.reason };
-    return this.leaveService.update(+id, updateDto, req.user.id);
+    return this.leaveService.review(id, LeaveStatus.REJECTED, req.user, dto);
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Delete leave request (Admin/HR only)' })
-  remove(@Param('id') id: string) {
-    return this.leaveService.remove(+id);
+  @ApiOperation({ summary: 'Cancel pending leave request or delete (HR & Admin)' })
+  remove(@Param('id') id: string, @Request() req) {
+    return this.leaveService.remove(id, req.user);
   }
 }

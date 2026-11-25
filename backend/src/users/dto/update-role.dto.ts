@@ -1,10 +1,12 @@
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { IsIn, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../../common/enums/role.enum';
 
 export class UpdateRoleDto {
-  @ApiProperty({ enum: Role, example: Role.HR })
+  @ApiProperty({ enum: [Role.ADMIN, Role.EMPLOYEE], example: Role.ADMIN })
   @IsNotEmpty()
-  @IsEnum(Role)
-  role: Role;
+  @IsIn([Role.ADMIN, Role.EMPLOYEE], {
+    message: 'Role must be either "admin" or "employee"',
+  })
+  role: Role.ADMIN | Role.EMPLOYEE;
 }

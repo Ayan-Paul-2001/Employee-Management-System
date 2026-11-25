@@ -1,124 +1,84 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, BadRequestException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AttendanceService } from './attendance.service';
-import { CreateAttendanceDto } from './dto/create-attendance.dto';
-import { UpdateAttendanceDto } from './dto/update-attendance.dto';
-import { CheckInDto } from './dto/check-in.dto';
-import { CheckOutDto } from './dto/check-out.dto';
-import { ApproveAttendanceDto } from './dto/approve-attendance.dto';
+import { CheckInDto, CheckOutDto, MarkAttendanceDto } from './dto/attendance.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApprovedUserGuard } from '../common/guards/approved-user.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @ApiTags('attendance')
+@ApiBearerAuth()
 @Controller('attendance')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ApprovedUserGuard, RolesGuard)
 export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 
-  @Post()
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Create attendance record (Admin/HR only)' })
-  @ApiResponse({ status: 201, description: 'Attendance record created successfully' })
-  @ApiResponse({ status: 403, description: 'Forbidden' })
-  create(@Body() createAttendanceDto: CreateAttendanceDto) {
-    return this.attendanceService.create(createAttendanceDto);
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Get all attendance records' })
-  findAll() {
-    return this.attendanceService.findAll();
-  }
-
-  @Get('employee/:employeeId')
-  @ApiOperation({ summary: 'Get attendance records by employee ID' })
-  findByEmployeeId(@Param('employeeId') employeeId: string) {
-    return this.attendanceService.findByEmployeeId(+employeeId);
-  }
-
-  @Get('date-range')
-  @ApiOperation({ summary: 'Get attendance records by date range' })
-  @ApiQuery({ name: 'startDate', required: true, type: String })
-  @ApiQuery({ name: 'endDate', required: true, type: String })
-  findByDateRange(
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-  ) {
-    return this.attendanceService.findByDateRange(startDate, endDate);
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Get attendance record by ID' })
-  findOne(@Param('id') id: string) {
-    const attendanceId = parseInt(id);
-    if (isNaN(attendanceId)) {
-      throw new BadRequestException(`Invalid attendance ID: ${id}`);
-    }
-    return this.attendanceService.findOne(attendanceId);
-  }
-
-  @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Update attendance record (Admin/HR only)' })
-  update(@Param('id') id: string, @Body() updateAttendanceDto: UpdateAttendanceDto) {
-    const attendanceId = parseInt(id);
-    if (isNaN(attendanceId)) {
-      throw new BadRequestException(`Invalid attendance ID: ${id}`);
-    }
-    return this.attendanceService.update(attendanceId, updateAttendanceDto);
-  }
-
   @Post('check-in')
-  @ApiOperation({ summary: 'Check in for attendance' })
-  @ApiResponse({ status: 201, description: 'Check-in successful' })
-  checkIn(@Body() checkInDto: CheckInDto) {
-    return this.attendanceService.checkIn(checkInDto);
+  @Roles(Role.EMPLOYEE, Role.ADMIN)
+  @ApiOperation({ summary: 'Check in for today (Employee & Admin only — Office Hours 9:00 AM - 5:00 PM)' })
+  checkIn(@Request() req, @Body() dto: CheckInDto) {
+    return this.attendanceService.checkIn(req.user.id, dto);
   }
 
   @Post('check-out')
-  @ApiOperation({ summary: 'Check out for attendance' })
-  @ApiResponse({ status: 200, description: 'Check-out successful' })
-  checkOut(@Body() checkOutDto: CheckOutDto) {
-    return this.attendanceService.checkOut(checkOutDto);
+  @Roles(Role.EMPLOYEE, Role.ADMIN)
+  @ApiOperation({ summary: 'Check out for today (Employee & Admin only — Office Hours 9:00 AM - 5:00 PM)' })
+  checkOut(@Request() req, @Body() dto: CheckOutDto) {
+    return this.attendanceService.checkOut(req.user.id, dto);
   }
 
-  @Patch(':id/approve')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Approve or reject attendance record (Admin/HR only)' })
-  @ApiResponse({ status: 200, description: 'Attendance record approved/rejected successfully' })
-  approveAttendance(
-    @Param('id') id: string,
-    @Body() approveAttendanceDto: ApproveAttendanceDto,
+  @Get('today')
+  @Roles(Role.EMPLOYEE, Role.ADMIN)
+  @ApiOperation({ summary: 'Get authenticated Employee/Admin attendance status for today' })
+  getToday(@Request() req) {
+    return this.attendanceService.getTodayStatus(req.user.id);
+  }
+
+  @Get('me')
+  @Roles(Role.EMPLOYEE, Role.ADMIN)
+  @ApiOperation({ summary: 'Get authenticated Employee/Admin attendance history' })
+  findMine(@Request() req) {
+    return this.attendanceService.findMyAttendance(req.user.id);
+  }
+
+  @Get('analytics')
+  @Roles(Role.HR)
+  @ApiOperation({ summary: 'HR Attendance Pie Chart analytics (Present vs Absent)' })
+  @ApiQuery({ name: 'period', required: false, enum: ['today', 'week', 'month'] })
+  @ApiQuery({ name: 'date', required: false, type: String })
+  getHrAnalytics(
+    @Query('period') period = 'today',
+    @Query('date') date?: string,
   ) {
-    const attendanceId = parseInt(id);
-    if (isNaN(attendanceId)) {
-      throw new BadRequestException(`Invalid attendance ID: ${id}`);
-    }
-    return this.attendanceService.approveAttendance(attendanceId, approveAttendanceDto);
+    return this.attendanceService.getHrAnalytics(period, date);
   }
 
-  @Get('pending')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Get all pending attendance records (Admin/HR only)' })
-  findPendingAttendances() {
-    return this.attendanceService.findPendingAttendances();
+  @Get()
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Get all staff attendance records (HR & Admin)' })
+  findAll(
+    @Query('date') date?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('role') role?: string,
+  ) {
+    return this.attendanceService.findAll({ date, startDate, endDate, role });
   }
 
-  @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Delete attendance record (Admin/HR only)' })
-  remove(@Param('id') id: string) {
-    const attendanceId = parseInt(id);
-    if (isNaN(attendanceId)) {
-      throw new BadRequestException(`Invalid attendance ID: ${id}`);
-    }
-    return this.attendanceService.remove(attendanceId);
+  @Post('manual')
+  @Roles(Role.HR)
+  @ApiOperation({ summary: 'Manually mark or update attendance (HR only)' })
+  markManual(@Body() dto: MarkAttendanceDto) {
+    return this.attendanceService.markManual(dto);
   }
 }

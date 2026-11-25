@@ -1,74 +1,104 @@
-import { Controller, Post, Get, Body, UseGuards, Request, Res, Query } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  Request,
+  Res,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { Response } from 'express';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
+import {
+  LoginDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  ProfileResetPasswordDto,
+  ChangePasswordDto,
+} from './dto/auth.dto';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { Roles } from '../common/decorators/roles.decorator';
-import { RolesGuard } from '../common/guards/roles.guard';
-import { Role } from '../common/enums/role.enum';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
-  @Post('verify-email')
-  @ApiOperation({ summary: 'Verify email with code' })
-  @ApiResponse({ status: 200, description: 'Email verified successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid code' })
-  async verifyEmail(@Body() body: { email: string; code: string }) {
-    return this.authService.verifyEmail(body.email, body.code);
-  }
-
-  @Post('resend-code')
-  @ApiOperation({ summary: 'Resend verification code' })
-  @ApiResponse({ status: 200, description: 'Code resent successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
-  async resendCode(@Body() body: { email: string }) {
-    return this.authService.resendVerificationCode(body.email);
+  @Post('register')
+  @ApiOperation({ summary: 'Register new Employee account (notifies HR & Admins)' })
+  register(
+    @Body() dto: CreateUserDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.register(dto, response);
   }
 
   @Post('login')
-  @ApiOperation({ summary: 'User login' })
-  @ApiResponse({ status: 200, description: 'Login successful' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) response: Response) {
-    return this.authService.login(loginDto, response);
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Sign in for HR, Admin, or Employee' })
+  login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.login(dto, response);
   }
 
   @Post('logout')
-  @ApiOperation({ summary: 'User logout' })
-  @ApiResponse({ status: 200, description: 'Logout successful' })
-  async logout(@Res({ passthrough: true }) response: Response) {
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Logout and clear session cookie (all roles)' })
+  logout(@Res({ passthrough: true }) response: Response) {
     return this.authService.logout(response);
   }
 
-  @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, description: 'User created successfully' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
-  }
-
-  @Post('admin-register')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Register a new Admin/HR user (Admin/HR only, no email verification needed)' })
-  @ApiResponse({ status: 201, description: 'User created successfully' })
-  @ApiResponse({ status: 403, description: 'Forbidden' })
-  async adminRegister(@Body() createUserDto: CreateUserDto) {
-    return this.authService.adminRegister(createUserDto);
-  }
-
   @Get('me')
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get current user profile' })
-  @ApiResponse({ status: 200, description: 'User profile retrieved successfully' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async getCurrentUser(@Request() req) {
+  @ApiOperation({ summary: 'Get currently authenticated user' })
+  getCurrentUser(@Request() req) {
     return req.user;
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send 6-digit password recovery code via email' })
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify 6-digit code and set new password' })
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
+
+  @Post('profile/change-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Directly update password from Profile (HR, Admin, Employee)' })
+  changeProfilePassword(@Request() req, @Body() dto: ChangePasswordDto) {
+    return this.authService.changeProfilePassword(req.user.id, dto);
+  }
+
+  @Post('profile/request-password-code')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Send 6-digit verification code to reset password from profile' })
+  requestProfilePasswordCode(@Request() req) {
+    return this.authService.requestProfilePasswordCode(req.user.id);
+  }
+
+  @Post('profile/reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Verify 6-digit email code and update password from profile' })
+  resetProfilePassword(@Request() req, @Body() dto: ProfileResetPasswordDto) {
+    return this.authService.resetProfilePassword(req.user.id, dto);
   }
 }

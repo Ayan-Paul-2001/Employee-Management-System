@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 90" fill="none">
+  <defs>
+    <linearGradient id="nh-card" x1="0" y1="0" x2="380" y2="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#090B10"/>
+      <stop offset="100%" stop-color="#151B28"/>
+    </linearGradient>
+    <linearGradient id="nh-gold" x1="16" y1="15" x2="76" y2="75" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F3DA9E"/>
+      <stop offset="50%" stop-color="#CFA252"/>
+      <stop offset="100%" stop-color="#9A722F"/>
+    </linearGradient>
+  </defs>
+  <rect width="380" height="90" rx="20" fill="url(#nh-card)"/>
+  <rect x="1" y="1" width="378" height="88" rx="19" stroke="url(#nh-gold)" stroke-opacity="0.35" stroke-width="1.5"/>
+  <rect x="16" y="15" width="60" height="60" rx="14" fill="#111622" stroke="url(#nh-gold)" stroke-opacity="0.6" stroke-width="1.4"/>
+  <path d="M27 59V31H32.6L44.6 47.4V31H50V59H44.5L32.4 42.4V59H27Z" fill="#FAF8F5"/>
+  <path d="M52.8 31H58.2V59H52.8V48.4H48.6V43.4H52.8V31Z" fill="url(#nh-gold)"/>
+  <text x="94" y="48" fill="#FAF8F5" font-family="Manrope, 'Segoe UI', Arial, sans-serif" font-size="27" font-weight="700" letter-spacing="-0.4">Next Hunt</text>
+  <text x="95" y="67" fill="#CFA252" font-family="Manrope, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="600" letter-spacing="3.4">MANAGEMENT SYSTEM</text>
+</svg>

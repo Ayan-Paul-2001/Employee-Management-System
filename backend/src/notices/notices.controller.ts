@@ -1,32 +1,39 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { NoticesService } from './notices.service';
-import { CreateNoticeDto } from './dto/create-notice.dto';
-import { UpdateNoticeDto } from './dto/update-notice.dto';
+import { CreateNoticeDto, UpdateNoticeDto } from './dto/notice.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApprovedUserGuard } from '../common/guards/approved-user.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 
 @ApiTags('notices')
+@ApiBearerAuth()
 @Controller('notices')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ApprovedUserGuard, RolesGuard)
 export class NoticesController {
   constructor(private readonly noticesService: NoticesService) {}
 
   @Post()
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Create notice (Admin/HR only)' })
-  @ApiResponse({ status: 201, description: 'Notice created successfully' })
-  create(@Body() createNoticeDto: CreateNoticeDto, @Request() req) {
-    // Set the creator ID from the authenticated user
-    createNoticeDto.createdById = req.user.id;
-    return this.noticesService.create(createNoticeDto);
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Post a new notice (HR & Admin)' })
+  create(@Body() dto: CreateNoticeDto, @Request() req) {
+    return this.noticesService.create(dto, req.user.id);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all notices' })
+  @ApiOperation({ summary: 'Get all notices (All authenticated roles)' })
   findAll() {
     return this.noticesService.findAll();
   }
@@ -34,22 +41,20 @@ export class NoticesController {
   @Get(':id')
   @ApiOperation({ summary: 'Get notice by ID' })
   findOne(@Param('id') id: string) {
-    return this.noticesService.findOne(+id);
+    return this.noticesService.findOne(id);
   }
 
   @Patch(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Update notice (Admin/HR only)' })
-  update(@Param('id') id: string, @Body() updateNoticeDto: UpdateNoticeDto) {
-    return this.noticesService.update(+id, updateNoticeDto);
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Update notice (HR & Admin)' })
+  update(@Param('id') id: string, @Body() dto: UpdateNoticeDto) {
+    return this.noticesService.update(id, dto);
   }
 
   @Delete(':id')
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN, Role.HR)
-  @ApiOperation({ summary: 'Delete notice (Admin/HR only)' })
+  @Roles(Role.HR, Role.ADMIN)
+  @ApiOperation({ summary: 'Delete notice (HR & Admin)' })
   remove(@Param('id') id: string) {
-    return this.noticesService.remove(+id);
+    return this.noticesService.remove(id);
   }
 }

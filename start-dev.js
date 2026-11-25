@@ -41,7 +41,7 @@ const runCommand = (command, args, cwd, name, colorCode) => {
 const backendPath = path.join(__dirname, 'backend');
 const frontendPath = path.join(__dirname, 'frontend');
 
-console.log('Starting Backend and Frontend...');
+console.log('Starting Next Hunt Management System (Backend + Frontend)...');
 
 // Start Backend (Green)
 // Adjust command 'npm run start:dev' based on backend/package.json
