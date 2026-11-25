@@ -36,15 +36,23 @@ export class AuthService {
     return crypto.randomInt(100000, 1000000).toString();
   }
 
+  private isProductionRuntime(): boolean {
+    return (
+      this.configService.get<string>('NODE_ENV') === 'production' ||
+      Boolean(process.env.VERCEL)
+    );
+  }
+
   private issueAuthCookie(response: Response, user: { id: string; email: string; role: Role }) {
     const payload = { sub: user.id, email: user.email, role: user.role };
     const token = this.jwtService.sign(payload);
     const maxAgeSeconds = Number(this.configService.get<string>('JWT_EXPIRATION') || 86400);
+    const isProd = this.isProductionRuntime();
 
     response.cookie('auth_token', token, {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
       maxAge: maxAgeSeconds * 1000,
       path: '/',
     });
@@ -137,9 +145,11 @@ export class AuthService {
   }
 
   async logout(response: Response) {
+    const isProd = this.isProductionRuntime();
     response.clearCookie('auth_token', {
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: isProd ? 'none' : 'lax',
+      secure: isProd,
       path: '/',
     });
     return { success: true, message: 'Logged out successfully' };

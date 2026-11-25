@@ -20,13 +20,16 @@ import { CommonModule } from './common/common.module';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('MONGODB_URI'),
-        maxPoolSize: 20,
-        minPoolSize: 5,
-        serverSelectionTimeoutMS: 5000,
-        socketTimeoutMS: 45000,
-      }),
+      useFactory: (configService: ConfigService) => {
+        const isServerless = Boolean(process.env.VERCEL);
+        return {
+          uri: configService.get<string>('MONGODB_URI'),
+          maxPoolSize: isServerless ? 10 : 20,
+          minPoolSize: isServerless ? 0 : 5,
+          serverSelectionTimeoutMS: 5000,
+          socketTimeoutMS: 45000,
+        };
+      },
     }),
     MailModule,
     NotificationsModule,

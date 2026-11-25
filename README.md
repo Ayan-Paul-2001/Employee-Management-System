@@ -37,6 +37,7 @@
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
+- [Deploying Both Backend & Frontend on Vercel](#deploying-both-backend--frontend-on-vercel)
 - [Seeded Accounts](#seeded-accounts)
 - [API Reference](#api-reference)
 
@@ -279,6 +280,9 @@ Below is a detailed case-study breakdown of every feature implemented across the
 ```text
 Employee-Management-System/
 ├── backend/
+│   ├── api/
+│   │   └── index.js            # Vercel Serverless Function entry point (loads compiled dist/vercel.js)
+│   ├── public/                 # Static output directory placeholder for Vercel builds
 │   ├── src/
 │   │   ├── attendance/         # Office-hours Check-in/out (8:30 AM – 5:00 PM), logs, manual override & HR Pie Analytics
 │   │   ├── auth/               # JWT auth, unified register/login, 6-digit email OTP recovery & direct profile password change
@@ -290,9 +294,12 @@ Employee-Management-System/
 │   │   ├── notices/            # Company notice board CRUD + pinning & categories
 │   │   ├── notifications/      # Persistent bell notifications + HR-only Notification Mail settings controller
 │   │   ├── users/              # User schema, Waiting Lobby approval/rejection, HR-only role promotion & profile updates
+│   │   ├── app-setup.ts        # Shared Express/NestJS bootstrap (CORS, cookies, ValidationPipe, Swagger, /health)
 │   │   ├── app.module.ts
-│   │   └── main.ts
+│   │   ├── main.ts             # Local / persistent Node server entry point
+│   │   └── vercel.ts           # Cached serverless handler for Vercel
 │   ├── nest-cli.json
+│   ├── vercel.json             # Vercel serverless config (buildCommand, includeFiles dist/**, rewrites)
 │   ├── .env.example
 │   └── package.json
 ├── frontend/
@@ -361,6 +368,7 @@ DEFAULT_HR_NAME=HR Super Admin
 DEFAULT_HR_EMAIL=hr@nexthunt.com
 DEFAULT_HR_PASSWORD=NextHunt@HR123
 FRONTEND_URL=http://localhost:3000
+TZ=Asia/Dhaka
 ```
 
 **`frontend/.env.local` variables:**
@@ -401,6 +409,53 @@ cd backend && npm run start:dev
 # Terminal 2 — Next.js UI (http://localhost:3000)
 cd frontend && npm run dev
 ```
+
+---
+
+## Deploying Both Backend & Frontend on Vercel
+
+Both `backend/` (NestJS Serverless Function) and `frontend/` (Next.js App Router) are pre-configured to deploy on Vercel from the **same GitHub repository** as two Vercel projects.
+
+### Before You Deploy
+1. **MongoDB Atlas Network Access**: Add **`0.0.0.0/0`** in MongoDB Atlas → *Network Access* so Vercel serverless IPs can connect.
+2. **Use Fresh Credentials**: Never commit `.env` files—paste your live `MONGODB_URI`, `JWT_SECRET`, and Gmail `SMTP_PASS` directly into Vercel's Environment Variables UI.
+
+### Project 1 — Backend API (`backend/`)
+1. In Vercel, click **Add New → Project** and import your GitHub repository.
+2. Set **Root Directory** to **`backend`** (Framework Preset: **Other** — Vercel reads `backend/vercel.json` automatically).
+3. Add these **Environment Variables**:
+
+| Variable | Value |
+|---|---|
+| `NODE_ENV` | `production` |
+| `TZ` | `Asia/Dhaka` *(ensures `8:30 AM – 5:00 PM` attendance runs in your local office timezone)* |
+| `MONGODB_URI` | Your MongoDB Atlas connection URI |
+| `JWT_SECRET` | Strong 64-character random secret |
+| `JWT_EXPIRATION` | `86400` |
+| `SMTP_HOST` | `smtp.gmail.com` |
+| `SMTP_PORT` | `587` |
+| `SMTP_USER` | Your Gmail address |
+| `SMTP_PASS` | Your Gmail App Password |
+| `SMTP_FROM_NAME` | `Next Hunt Management System` |
+| `HR_NOTIFICATION_EMAIL` | Default HR alert recipient email |
+| `DEFAULT_HR_NAME` | `HR Super Admin` |
+| `DEFAULT_HR_EMAIL` | `hr@nexthunt.com` |
+| `DEFAULT_HR_PASSWORD` | Strong password for default HR account |
+| `FRONTEND_URL` | `https://<your-frontend-project>.vercel.app` *(update after deploying Project 2)* |
+
+4. Deploy and verify `https://<your-backend-project>.vercel.app/health` returns `{ "status": "ok" }` (Swagger is live at `/api/docs`).
+
+### Project 2 — Frontend UI (`frontend/`)
+1. In Vercel, click **Add New → Project** and import the **same** GitHub repository again.
+2. Set **Root Directory** to **`frontend`** (Framework Preset: **Next.js** — auto-detected).
+3. Add these **Environment Variables**:
+
+| Variable | Value |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | `https://<your-backend-project>.vercel.app` *(no trailing slash needed)* |
+| `NEXT_PUBLIC_APP_NAME` | `Next Hunt Management System` |
+
+4. Deploy, then copy your live frontend URL back into Project 1's **`FRONTEND_URL`** env var and redeploy Project 1 once so CORS allows your live frontend domain.
 
 ---
 
