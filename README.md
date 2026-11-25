@@ -280,9 +280,6 @@ Below is a detailed case-study breakdown of every feature implemented across the
 ```text
 Employee-Management-System/
 ├── backend/
-│   ├── api/
-│   │   └── index.js            # Vercel Serverless Function entry point (loads compiled dist/vercel.js)
-│   ├── public/                 # Static output directory placeholder for Vercel builds
 │   ├── src/
 │   │   ├── attendance/         # Office-hours Check-in/out (8:30 AM – 5:00 PM), logs, manual override & HR Pie Analytics
 │   │   ├── auth/               # JWT auth, unified register/login, 6-digit email OTP recovery & direct profile password change
@@ -296,10 +293,8 @@ Employee-Management-System/
 │   │   ├── users/              # User schema, Waiting Lobby approval/rejection, HR-only role promotion & profile updates
 │   │   ├── app-setup.ts        # Shared Express/NestJS bootstrap (CORS, cookies, ValidationPipe, Swagger, /health)
 │   │   ├── app.module.ts
-│   │   ├── main.ts             # Local / persistent Node server entry point
-│   │   └── vercel.ts           # Cached serverless handler for Vercel
+│   │   └── main.ts             # NestJS entry point (works natively on local Node & Vercel Fluid Compute)
 │   ├── nest-cli.json
-│   ├── vercel.json             # Vercel serverless config (buildCommand, includeFiles dist/**, rewrites)
 │   ├── .env.example
 │   └── package.json
 ├── frontend/
@@ -422,7 +417,7 @@ Both `backend/` (NestJS Serverless Function) and `frontend/` (Next.js App Router
 
 ### Project 1 — Backend API (`backend/`)
 1. In Vercel, click **Add New → Project** and import your GitHub repository.
-2. Set **Root Directory** to **`backend`** (Framework Preset: **Other** — Vercel reads `backend/vercel.json` automatically).
+2. Click **Import single project →** next to **`backend`** (Root Directory: **`backend`**, Framework Preset: **`NestJS`** — auto-detected, leave Build Command & Output Directory at default).
 3. Add these **Environment Variables**:
 
 | Variable | Value |
