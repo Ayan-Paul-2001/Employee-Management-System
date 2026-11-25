@@ -1,8 +1,15 @@
 import axios from 'axios';
 
-const API_BASE_URL = (
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-).replace(/\/+$/, '');
+function normalizeApiUrl(raw?: string): string {
+  const value = (raw || 'http://localhost:4000').trim().replace(/\/+$/, '');
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+  const isLocal = /^(localhost|127\.0\.0\.1)(:\d+)?$/i.test(value);
+  return `${isLocal ? 'http' : 'https'}://${value}`;
+}
+
+const API_BASE_URL = normalizeApiUrl(process.env.NEXT_PUBLIC_API_URL);
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

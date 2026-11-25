@@ -44,29 +44,32 @@ export class NotificationsService implements OnModuleInit {
   }
 
   private async ensureMailSettings(): Promise<NotificationMailSettingsDocument> {
-    const existing = await this.mailSettingsModel
-      .findOne({ key: SETTINGS_KEY })
-      .exec();
-    if (existing) return existing;
-
     const defaultEmail = this.configService
       .get<string>('HR_NOTIFICATION_EMAIL')
       ?.trim()
       .toLowerCase();
 
-    return this.mailSettingsModel.create({
-      key: SETTINGS_KEY,
-      enabled: true,
-      recipients: defaultEmail
-        ? [
-            {
-              email: defaultEmail,
-              label: 'Default HR Alert Inbox',
-              addedAt: new Date(),
-            },
-          ]
-        : [],
-    });
+    return this.mailSettingsModel
+      .findOneAndUpdate(
+        { key: SETTINGS_KEY },
+        {
+          $setOnInsert: {
+            key: SETTINGS_KEY,
+            enabled: true,
+            recipients: defaultEmail
+              ? [
+                  {
+                    email: defaultEmail,
+                    label: 'Default HR Alert Inbox',
+                    addedAt: new Date(),
+                  },
+                ]
+              : [],
+          },
+        },
+        { upsert: true, new: true },
+      )
+      .exec();
   }
 
   async getMailSettings() {

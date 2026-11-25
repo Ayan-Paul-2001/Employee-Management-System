@@ -71,21 +71,25 @@ export function configureApp(app: INestApplication): void {
     httpInstance.get('/health', (_req, res) => res.status(200).json(healthPayload()));
   }
 
-  const config = new DocumentBuilder()
-    .setTitle('Next Hunt Management System API')
-    .setDescription(
-      'REST API for Next Hunt Management System — Role-based Workforce, Attendance Analytics, Leave & Notice Platform powered by NestJS & MongoDB Atlas',
-    )
-    .setVersion('2.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document, {
-    customCssUrl:
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui.min.css',
-    customJs: [
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui-bundle.min.js',
-      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui-standalone-preset.min.js',
-    ],
-  });
+  try {
+    const config = new DocumentBuilder()
+      .setTitle('Next Hunt Management System API')
+      .setDescription(
+        'REST API for Next Hunt Management System — Role-based Workforce, Attendance Analytics, Leave & Notice Platform powered by NestJS & MongoDB Atlas',
+      )
+      .setVersion('2.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document, {
+      customCssUrl:
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui.min.css',
+      customJs: [
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui-bundle.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui-standalone-preset.min.js',
+      ],
+    });
+  } catch (err: any) {
+    console.warn('Swagger UI setup skipped in serverless runtime:', err?.message || err);
+  }
 }
